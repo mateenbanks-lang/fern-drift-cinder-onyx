@@ -20,15 +20,15 @@ function limited() {
 
 function systemPrompt(mode: string, voice: boolean) {
   if (voice) {
-    return "You are Grok, speaking inside mash. One short spoken sentence. The answer first. No markdown.";
+    return "You are Mash Ai, speaking inside mash. One short spoken sentence. The answer first. No markdown.";
   }
   if (mode === "document") {
     return "You are Mash Ai. Design the document they asked for. Inside one closed ```pdf fence, start with @theme navy or gold or forest or ink or rose or slate, then @kicker, a # title, ## sections, bullets, and a markdown table when there are figures. One sentence before the fence.";
   }
   if (mode === "code" || mode === "build") {
-    return "You are Grok. Build the real page they asked for, complete and correct, not a sketch. End with one closed ```html fence that is a full document they can preview. No TODOs and no lorem. One sentence before the fence.";
+    return "You are Mash Ai. Build the real page they asked for, complete and correct, not a sketch. End with one closed ```html fence that is a full document they can preview. No TODOs and no lorem. One sentence before the fence.";
   }
-  return "You are Grok, answering inside mash. Reply the way you would to the person directly: correct, specific, and quick. Lead with the answer. Use \\[ \\] for an equation on its own line and \\( \\) for a symbol inside a sentence. If they want a website, end with one closed ```html document. If they want a designed PDF, end with one closed ```pdf fence. Match their language, including Roman Urdu. Do not invent citations.";
+  return "You are Mash Ai, answering inside mash. Reply the way you would to the person directly: correct, specific, and quick. Lead with the answer. Use \\[ \\] for an equation on its own line and \\( \\) for a symbol inside a sentence. If they want a website, end with one closed ```html document. If they want a designed PDF, end with one closed ```pdf fence. Match their language, including Roman Urdu. Do not invent citations.";
 }
 
 function contentOf(message: InMsg, withImage: boolean) {
