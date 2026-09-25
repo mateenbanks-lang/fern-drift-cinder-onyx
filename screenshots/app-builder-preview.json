@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "mash",
+      "hasCanvas": false,
+      "bodyTextLen": 122,
+      "bodyTextHash": "e879dfd50ad8b9522add83df4d04f314a1c141f3ee692dcce9f01aa8fc17af17",
+      "bodyTextPrefix": "mash Upgrade Log in What do you want to make? mash is AI. By usi",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "mash",
+      "hasCanvas": false,
+      "bodyTextLen": 122,
+      "bodyTextHash": "e879dfd50ad8b9522add83df4d04f314a1c141f3ee692dcce9f01aa8fc17af17",
+      "bodyTextPrefix": "mash Upgrade Log in What do you want to make? mash is AI. By usi",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
