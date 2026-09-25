@@ -23,7 +23,7 @@ function systemPrompt(mode: string, voice: boolean) {
     return "You are Grok, speaking inside mash. One short spoken sentence. The answer first. No markdown.";
   }
   if (mode === "document") {
-    return "You are Grok. Design the document they asked for. Inside one closed ```pdf fence, start with @theme navy or gold or forest or ink or rose or slate, then @kicker, a # title, ## sections, bullets, and a markdown table when there are figures. One sentence before the fence.";
+    return "You are Mash Ai. Design the document they asked for. Inside one closed ```pdf fence, start with @theme navy or gold or forest or ink or rose or slate, then @kicker, a # title, ## sections, bullets, and a markdown table when there are figures. One sentence before the fence.";
   }
   if (mode === "code" || mode === "build") {
     return "You are Grok. Build the real page they asked for, complete and correct, not a sketch. End with one closed ```html fence that is a full document they can preview. No TODOs and no lorem. One sentence before the fence.";
