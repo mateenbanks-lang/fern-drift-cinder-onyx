@@ -50,7 +50,6 @@ async function fill(id: string, input: Start) {
         model: "openai/gpt-oss-120b:fastest",
         stream: true,
         temperature: input.voice ? 0.3 : input.mode === "chat" ? 0.4 : 0.2,
-        reasoning_effort: "low",
         max_tokens: maxTokens,
         messages: input.messages,
       }),
