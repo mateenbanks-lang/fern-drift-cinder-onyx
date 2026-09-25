@@ -32,7 +32,7 @@ export function startChatJob(input: Start & { id?: string }) {
 async function fill(id: string, input: Start) {
   const job = bucket().get(id);
   if (!job) return;
-  const apiKey = process.env.HF_TOKEN;
+  const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
     job.error = "AI is not available right now.";
     job.done = true;
@@ -40,7 +40,7 @@ async function fill(id: string, input: Start) {
   }
   const maxTokens = input.voice ? 80 : input.mode === "chat" ? 1200 : 4000;
   try {
-    const upstream = await fetch("https://router.huggingface.co/v1/chat/completions", {
+    const upstream = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
