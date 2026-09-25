@@ -32,7 +32,7 @@ export function startChatJob(input: Start & { id?: string }) {
 async function fill(id: string, input: Start) {
   const job = bucket().get(id);
   if (!job) return;
-  const apiKey = process.env.XAI_API_KEY;
+  const apiKey = process.env.HF_TOKEN;
   if (!apiKey) {
     job.error = "AI is not available right now.";
     job.done = true;
