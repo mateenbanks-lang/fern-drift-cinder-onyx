@@ -47,7 +47,7 @@ export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apiKey = process.env.XAI_API_KEY;
+        const apiKey = process.env.HF_TOKEN;
         if (!apiKey) {
           return Response.json({ error: "AI is not available right now." }, { status: 503 });
         }
