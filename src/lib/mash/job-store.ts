@@ -47,7 +47,7 @@ async function fill(id: string, input: Start) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "grok-4.5",
+        model: "openai/gpt-oss-120b:fastest",
         stream: true,
         temperature: input.voice ? 0.3 : input.mode === "chat" ? 0.4 : 0.2,
         reasoning_effort: "low",
