@@ -40,7 +40,7 @@ async function fill(id: string, input: Start) {
   }
   const maxTokens = input.voice ? 80 : input.mode === "chat" ? 1200 : 4000;
   try {
-    const upstream = await fetch("https://api.x.ai/v1/chat/completions", {
+    const upstream = await fetch("https://router.huggingface.co/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
