@@ -1,8 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
+import {
+  IMAGE_FALLBACK,
+  IMAGE_MODEL,
+  OPENROUTER_BASE,
+  TTS_MODEL,
+  openRouterHeaders,
+  openRouterKey,
+} from "./openrouter";
 
 const imageHits: number[] = [];
-const OPENROUTER = "https://openrouter.ai/api/v1";
-const SITE = "https://fern-drift-cinder-onyx.vercel.app";
 
 function limited(bucket: number[], max: number, windowMs: number) {
   const now = Date.now();
@@ -10,19 +16,6 @@ function limited(bucket: number[], max: number, windowMs: number) {
   if (bucket.length >= max) return true;
   bucket.push(now);
   return false;
-}
-
-function orHeaders(apiKey: string) {
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${apiKey}`,
-    "HTTP-Referer": SITE,
-    "X-Title": "Mash Ai",
-  };
-}
-
-function routerKey() {
-  return process.env.OPENROUTER_API_KEY?.trim();
 }
 
 async function generateImage(apiKey: string, model: string, prompt: string, image?: string) {
@@ -34,9 +27,9 @@ async function generateImage(apiKey: string, model: string, prompt: string, imag
   if (image) {
     body.input_references = [{ type: "image_url", image_url: { url: image } }];
   }
-  const res = await fetch(`${OPENROUTER}/images`, {
+  const res = await fetch(`${OPENROUTER_BASE}/images`, {
     method: "POST",
-    headers: orHeaders(apiKey),
+    headers: openRouterHeaders(apiKey),
     body: JSON.stringify(body),
   });
   if (!res.ok) return { ok: false as const, status: res.status };
@@ -68,15 +61,15 @@ export const imagineImage = createServerFn({ method: "POST" })
     return { prompt };
   })
   .handler(async ({ data }) => {
-    const apiKey = routerKey();
+    const apiKey = openRouterKey();
     if (!apiKey) return { ok: false as const, error: "AI is not available right now." };
     if (limited(imageHits, 6, 60_000)) {
       return { ok: false as const, error: "Short pause after heavy use." };
     }
     try {
-      let result = await generateImage(apiKey, "google/gemini-2.5-flash-image", data.prompt);
+      let result = await generateImage(apiKey, IMAGE_MODEL, data.prompt);
       if (!result.ok && result.status !== 401 && result.status !== 429) {
-        result = await generateImage(apiKey, "black-forest-labs/flux.2-pro", data.prompt);
+        result = await generateImage(apiKey, IMAGE_FALLBACK, data.prompt);
       }
       if (!result.ok) {
         return {
@@ -103,16 +96,14 @@ export const editImage = createServerFn({ method: "POST" })
     return { prompt, image };
   })
   .handler(async ({ data }) => {
-    const apiKey = routerKey();
+    const apiKey = openRouterKey();
     if (!apiKey) return { ok: false as const, error: "AI is not available right now." };
     if (limited(imageHits, 6, 60_000)) return { ok: false as const, error: "Short pause after heavy use." };
     try {
-      const result = await generateImage(
-        apiKey,
-        "google/gemini-2.5-flash-image",
-        data.prompt,
-        data.image,
-      );
+      let result = await generateImage(apiKey, IMAGE_MODEL, data.prompt, data.image);
+      if (!result.ok && result.status !== 401 && result.status !== 429) {
+        result = await generateImage(apiKey, IMAGE_FALLBACK, data.prompt, data.image);
+      }
       if (!result.ok) return { ok: false as const, error: `Edit failed (${result.status}).` };
       return { ok: true as const, url: result.url };
     } catch {
@@ -130,15 +121,15 @@ export const speakText = createServerFn({ method: "POST" })
     return { text };
   })
   .handler(async ({ data }) => {
-    const apiKey = routerKey();
+    const apiKey = openRouterKey();
     if (!apiKey) return { ok: false as const, error: "Voice is not available right now." };
     try {
-      for (const voice of ["nova", "alloy"]) {
-        const res = await fetch(`${OPENROUTER}/audio/speech`, {
+      for (const voice of ["af_sarah", "af_bella"]) {
+        const res = await fetch(`${OPENROUTER_BASE}/audio/speech`, {
           method: "POST",
-          headers: orHeaders(apiKey),
+          headers: openRouterHeaders(apiKey),
           body: JSON.stringify({
-            model: "openai/gpt-4o-mini-tts-2025-12-15",
+            model: TTS_MODEL,
             input: data.text,
             voice,
             response_format: "mp3",

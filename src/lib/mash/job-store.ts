@@ -1,3 +1,13 @@
+import {
+  CHAT_FALLBACK,
+  CHAT_MODEL,
+  VISION_MODEL,
+  OPENROUTER_BASE,
+  openRouterError,
+  openRouterHeaders,
+  openRouterKey,
+} from "./openrouter";
+
 type Job = {
   text: string;
   done: boolean;
@@ -29,27 +39,30 @@ export function startChatJob(input: Start & { id?: string }) {
   return id;
 }
 
+function hasVision(messages: Start["messages"]) {
+  return messages.some((m) => Array.isArray(m.content));
+}
+
 async function fill(id: string, input: Start) {
   const job = bucket().get(id);
   if (!job) return;
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = openRouterKey();
   if (!apiKey) {
     job.error = "AI is not available right now.";
     job.done = true;
     return;
   }
+  const vision = hasVision(input.messages);
+  const model = vision ? VISION_MODEL : CHAT_MODEL;
+  const models = vision ? [VISION_MODEL, CHAT_FALLBACK] : [CHAT_MODEL, CHAT_FALLBACK];
   const maxTokens = input.voice ? 80 : input.mode === "chat" ? 1200 : 4000;
   try {
-    const upstream = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const upstream = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://fern-drift-cinder-onyx.vercel.app",
-        "X-Title": "Mash Ai",
-      },
+      headers: openRouterHeaders(apiKey),
       body: JSON.stringify({
-        model: "openai/gpt-oss-120b:fastest",
+        model,
+        models,
         stream: true,
         temperature: input.voice ? 0.3 : input.mode === "chat" ? 0.4 : 0.2,
         max_tokens: maxTokens,
@@ -58,9 +71,7 @@ async function fill(id: string, input: Start) {
     });
     if (!upstream.ok || !upstream.body) {
       const detail = await upstream.text().catch(() => "");
-      job.error = /spending-limit|out of credits|402/i.test(detail)
-        ? "OpenRouter credits are low on this app, so it cannot answer yet. Add credits, then send it again."
-        : `mash is busy (${upstream.status}). Try again.`;
+      job.error = openRouterError(detail, upstream.status);
       job.done = true;
       return;
     }
@@ -81,8 +92,13 @@ async function fill(id: string, input: Start) {
         if (!data || data === "[DONE]") continue;
         try {
           const json = JSON.parse(data) as {
-            choices?: { delta?: { content?: string }; finish_reason?: string | null }[];
+            error?: { message?: string };
+            choices?: {
+              delta?: { content?: string | null; reasoning?: string | null };
+              finish_reason?: string | null;
+            }[];
           };
+          if (json.error?.message && !job.text) job.error = json.error.message;
           const choice = json.choices?.[0];
           const token = choice?.delta?.content;
           if (typeof token === "string" && token) job.text += token;
