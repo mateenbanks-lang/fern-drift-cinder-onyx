@@ -45,6 +45,8 @@ async function fill(id: string, input: Start) {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://fern-drift-cinder-onyx.vercel.app",
+        "X-Title": "Mash Ai",
       },
       body: JSON.stringify({
         model: "openai/gpt-oss-120b:fastest",
@@ -56,8 +58,8 @@ async function fill(id: string, input: Start) {
     });
     if (!upstream.ok || !upstream.body) {
       const detail = await upstream.text().catch(() => "");
-      job.error = /spending-limit|out of credits/i.test(detail)
-        ? "Grok is out of credits on this app, so it cannot answer yet. Add credits, then send it again."
+      job.error = /spending-limit|out of credits|402/i.test(detail)
+        ? "OpenRouter credits are low on this app, so it cannot answer yet. Add credits, then send it again."
         : `mash is busy (${upstream.status}). Try again.`;
       job.done = true;
       return;
